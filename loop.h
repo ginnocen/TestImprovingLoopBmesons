@@ -353,6 +353,7 @@ Int_t           MuonInfo_index[MAX_MUON];
 Int_t           MuonInfo_handle_index[MAX_MUON];
 Int_t           MuonInfo_charge[MAX_MUON];
 Double_t        MuonInfo_pt[MAX_MUON];
+Bool_t        MuonInfo_passMuID[MAX_MUON];
 Double_t        MuonInfo_eta[MAX_MUON];
 Double_t        MuonInfo_phi[MAX_MUON];
 Int_t           MuonInfo_i_striphit[MAX_MUON];
@@ -553,6 +554,7 @@ void setBranch(TTree *root) {
    root->SetBranchAddress("MuonInfo.handle_index",MuonInfo_handle_index);
    root->SetBranchAddress("MuonInfo.charge",MuonInfo_charge);
    root->SetBranchAddress("MuonInfo.pt",MuonInfo_pt);
+   root->SetBranchAddress("MuonInfo.passMuID",MuonInfo_passMuID);
    root->SetBranchAddress("MuonInfo.eta",MuonInfo_eta);
    root->SetBranchAddress("MuonInfo.phi",MuonInfo_phi);
 

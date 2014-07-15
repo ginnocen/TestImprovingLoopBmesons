@@ -694,7 +694,7 @@ int signalGen(int Btype, int j)
 
 
 //void loop(string infile="/export/d00/scratch/jwang/Bfinder_BoostedMC_20140418_Hijing_PPb502_MinimumBias_HIJINGemb_inclBtoPsiMuMu_5TeV.root", string outfile="/export/d00/scratch/jwang/jpsi.root", bool REAL=0){
-void loop(string infile="/afs/cern.ch/work/g/ginnocen/hckim-HIJINGemb_inclBtoPsiMuMu/Bfinder_all_151_1_Y7s.root", string
+void loopGMI(string infile="/afs/cern.ch/work/g/ginnocen/hckim-HIJINGemb_inclBtoPsiMuMu/Bfinder_all_151_1_Y7s.root", string
 	  outfile="Modified/testModified.root", bool REAL=0,bool PbpMC=0,int nEntries=0){
 //////////////////////////////////////////////////////////Phi
 //   This file has been automatically generated 

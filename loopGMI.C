@@ -392,9 +392,11 @@ void fillTree(TVector3* bP, TVector3* bVtx, TLorentzVector* b4P, int j, int type
     
     ParticleResonanceGenLabel(muon1geninfo,muon1pdg,mothermuon1geninfo,mothermuon1pdg,grandmothermuon1geninfo,grandmothermuon1pdg,13,443,BId,ujGenIdxMu1,bGenIdxMu1,levelmuon1);
     gen[typesize]+=(levelmuon1*100);
+    if(levelmuon1==3) flagkstar++;
     
     ParticleResonanceGenLabel(muon2geninfo,muon2pdg,mothermuon2geninfo,mothermuon2pdg,grandmothermuon2geninfo,grandmothermuon2pdg,13,443,BId,ujGenIdxMu2,bGenIdxMu2,levelmuon2);
     gen[typesize]+=(levelmuon2*1000);
+    if(levelmuon2==3) flagkstar++;
 
       int level=0;
       if(mGenIdxTk1!=-1 && mGenIdxTk2!=-1)

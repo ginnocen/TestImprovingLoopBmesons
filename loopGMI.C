@@ -408,111 +408,53 @@ void fillTree(TVector3* bP, TVector3* bVtx, TLorentzVector* b4P, int j, int type
     gen[typesize]+=(levelmuon2*1000);
     if(levelmuon2==3) flagkstar++;
 
-      int level=0;
-      if(mGenIdxTk1!=-1 && mGenIdxTk2!=-1)
-	{
-	  if(!twoTks) level=1;
-	  else
-	    {
-	      if(mGenIdxTk1==mGenIdxTk2) level=1;
-	    }
+    int levelBcand=0;
+    if(mGenIdxTk1!=-1 && mGenIdxTk2!=-1){
+	  if(!twoTks) levelBcand=1;
+	  else{
+	    if(mGenIdxTk1==mGenIdxTk2) levelBcand=1;
+	  }
 	}
-      if(bGenIdxMu1!=-1 && bGenIdxMu1==bGenIdxMu2 && bGenIdxMu1==bGenIdxTk1)
-	{
-	  if(!twoTks)
-	    {
-	      level=2;
-	      genIndex[typesize] = bGenIdxMu1;
-	    }
-	  else if(bGenIdxMu1==bGenIdxTk2)
-	    {
-	      level=2;
-	      genIndex[typesize] = bGenIdxMu1;
-	    }
+    if(bGenIdxMu1!=-1 && bGenIdxMu1==bGenIdxMu2 && bGenIdxMu1==bGenIdxTk1){
+	  if(!twoTks){
+	    levelBcand=2;
+	    genIndex[typesize] = bGenIdxMu1;
+	  }
+	  else if(bGenIdxMu1==bGenIdxTk2){
+	    levelBcand=2;
+	    genIndex[typesize] = bGenIdxMu1;
+	  }
 	}
-      gen[typesize]+=(level*10000);
+    
+    gen[typesize]+=(levelBcand*10000);
 
-      //kstar#############################################################################
-      if(kStar)
-	{
-	  //tk1
-	  if(TrackInfo_geninfo_index[BInfo_rftk1_index[j]]>-1)
-	    {
-	      if(abs(GenInfo_pdgId[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]])==tk2Id)
-		{
-		  if(GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]>-1)
-		    {
-		      if(abs(GenInfo_pdgId[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]])==MId)
-			{
-			  if(GenInfo_mo1[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]]>-1)
-			    {
-			      if(abs(GenInfo_pdgId[GenInfo_mo1[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]]])==BId)
-				{
-				  flagkstar++;//////////////////////////////////////////////=3
-				  bGenIdxTk1=GenInfo_mo1[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]];
-				}
-			    }
-			  mGenIdxTk1=GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]];
-			}
-		    }
-		}
-	    }
-	  
-	  //tk2
-	  if(TrackInfo_geninfo_index[BInfo_rftk2_index[j]]>-1)
-	    {
-	      if(abs(GenInfo_pdgId[TrackInfo_geninfo_index[BInfo_rftk2_index[j]]])==tk1Id)
-		{
-		  if(GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk2_index[j]]]>-1)
-		    {
-		      if(abs(GenInfo_pdgId[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk2_index[j]]]])==MId)
-			{
-			  if(GenInfo_mo1[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk2_index[j]]]]>-1)
-			    {
-			      if(abs(GenInfo_pdgId[GenInfo_mo1[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk2_index[j]]]]])==BId)
-				{
-				  flagkstar++;////////////////////////////////////////////////////=4
-				  bGenIdxTk2 = GenInfo_mo1[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk2_index[j]]]];
-				}
-			    }
-			  mGenIdxTk2 = GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk2_index[j]]];
-			}
-		    }
-		}
-	    }
-	  if(flagkstar==4)
-	    {
-	      if((bGenIdxMu1!=-1) 
-		 && (bGenIdxMu1==bGenIdxMu2)
-		 && (bGenIdxMu1==bGenIdxTk1)
-		 && (bGenIdxMu1==bGenIdxTk2)
-		 )
-		{
-		  gen[typesize]=41000;
-		}
-	    }
-	}//kstar End#############################################################################
+    if(kStar){ //here we recover cases in which we did the wrong assumption on the K and pi mass.
+    
+      int leveltk1swapped=0;
+      int leveltk2swapped=0;
+      
+      ParticleResonanceGenLabel(tk1geninfo,tk1pdg,mothertk1geninfo,mothertk1pdg,grandmothertk1geninfo,grandmothertk1pdg,tk2Id,MId,BId,mGenIdxTk1,bGenIdxTk1,leveltk1swapped);  
+      ParticleResonanceGenLabel(tk2geninfo,tk2pdg,mothertk2geninfo,mothertk2pdg,grandmothertk2geninfo,grandmothertk2pdg,tk1Id,MId,BId,mGenIdxTk2,bGenIdxTk2,leveltk2swapped);  
+      if(leveltk1swapped==3) flagkstar++;
+      if(leveltk2swapped==3) flagkstar++;
 
-      int tgenIndex=genIndex[typesize];
-      if(gen[typesize]==23333 || gen[typesize]==41000)
-	{
+	  if(flagkstar==4){
+	    if((bGenIdxMu1!=-1)&&(bGenIdxMu1==bGenIdxMu2)&&(bGenIdxMu1==bGenIdxTk1)&&(bGenIdxMu1==bGenIdxTk2)){
+		  gen[typesize]=41000; 
+		}
+	  }
+	}
+
+    int tgenIndex=genIndex[typesize];
+    if(gen[typesize]==23333 || gen[typesize]==41000){
+    
 	  genpt[typesize] = GenInfo_pt[tgenIndex];
 	  geneta[typesize] = GenInfo_eta[tgenIndex];
 	  genphi[typesize] = GenInfo_phi[tgenIndex];
-	  b4P->SetXYZM(GenInfo_pt[tgenIndex]*cos(GenInfo_phi[tgenIndex]),
-		       GenInfo_pt[tgenIndex]*sin(GenInfo_phi[tgenIndex]),
-		       GenInfo_pt[tgenIndex]*sinh(GenInfo_eta[tgenIndex]),
-		       GenInfo_mass[tgenIndex]);
+	  b4P->SetXYZM(GenInfo_pt[tgenIndex]*cos(GenInfo_phi[tgenIndex]),GenInfo_pt[tgenIndex]*sin(GenInfo_phi[tgenIndex]),GenInfo_pt[tgenIndex]*sinh(GenInfo_eta[tgenIndex]),GenInfo_mass[tgenIndex]);
 	  geny[typesize] = b4P->Rapidity();
 	}
-      /*
-      if(ujGenIdxMu1==ujGenIdxMu2&&ujGenIdxMu1!=-1)
-	{
-	  if(prompt) isprompt[typesize]=1;
-	  if(nonprompt&&(gen[typesize]!=23333)&&(gen[typesize]!=41000)) isnonprompt[typesize]=1;
-	}
-      */
-    }
+  }
 }
 
 int signalGen(int Btype, int j)
@@ -680,7 +622,9 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root",
     
     float best,temy;
     int bestindex;
-//**
+
+    // Bplus section
+
     size=0;
     best=-1;
     bestindex=-1;
@@ -719,7 +663,9 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root",
     }
     
     nt0->Fill();
-//****
+
+    // Bzero section
+
     size=0;
     best=-1;
     bestindex=-1;
@@ -757,7 +703,6 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root",
     }
     
     nt3->Fill();
-//****
 
     if(!REAL){
 	  Gensize = 0;

@@ -25,11 +25,21 @@
 Double_t massmincut=5.;
 Double_t massmaxcut=6.;
 Double_t ptmincut=10.;
-Float_t trkPtCut=0.9;
-Float_t chi2clCut=1.32e-02;
-Float_t d0d0ErrCut=3.41;
-Float_t cosdthetaCut=-3.46e-01;
 Float_t mumumassCut=0.15;
+
+Float_t trkPtCutBplus=0.9;
+Float_t chi2clCutBplus=1.32e-02;
+Float_t d0d0ErrCutBplus=3.41;
+Float_t cosdthetaCutBplus=-3.46e-01;
+
+Float_t trkPtCutBzero=0.7;
+Float_t chi2clCutBzero=1.65e-01;
+Float_t d0d0ErrCutBzero=4.16;
+Float_t cosdthetaCutBzero=7.50e-01;
+Float_t invmasstktkBzero=2.33e-01;
+
+
+
 
 void fillTree(TVector3* bP, TVector3* bVtx, TLorentzVector* b4P, int j, int typesize, float track_mass1, float track_mass2, int REAL, int PbpMC)
 { 
@@ -597,7 +607,8 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root",
 	  
   Bool_t IsEventSelected_pPb5TeV(bool,bool,int,double);
   Bool_t IsBplusCandidateSelected(double,double,double,double,double);
-	  
+  Bool_t IsBzeroCandidateSelected(double,double,double,double,double,double);
+    
   const char* infname;
   const char* outfname;
 
@@ -627,9 +638,14 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root",
     
   int ifchannel[7];
   ifchannel[0] = 1; //jpsi+Kp
+  ifchannel[3] = 1; //jpsi+K*(K+,pi-)
+  ifchannel[4] = 1; //jpsi+K*(K-,pi+)
+
   
   TTree* nt0 = new TTree("ntKp","");
   buildBranch(nt0);
+  TTree* nt3 = new TTree("ntKstar","");
+  buildBranch(nt3);
   TTree* ntGen = new TTree("ntGen","");
   buildGenBranch(ntGen);
 
@@ -660,13 +676,16 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root",
     if (i%10000==0) cout <<i<<" / "<<nentries<<"   offset HLT:"<<offsetHltTree<<endl;
 
     int type1size=0;
+    int type4size=0;
+    
     float best,temy;
     int bestindex;
-
+//**
     size=0;
     best=-1;
     bestindex=-1;
-        
+    bool iscandselected=false;
+    
     for (int j=0;j<BInfo_size;j++){
 	  if(BInfo_type[j]>7) continue;
 	  if(ifchannel[BInfo_type[j]-1]!=1) continue;
@@ -681,7 +700,7 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root",
 		
 	  if(BInfo_mass[j]<massmincut || BInfo_mass[j]>massmaxcut) continue;
 	  if(BInfo_pt[j]<ptmincut) continue;
-	  bool iscandselected=false;
+	  iscandselected=false;
 	
 	  if(BInfo_type[j]==1){
 	    fillTree(bP,bVtx,b4P,j,type1size,KAON_MASS,0,REAL,PbpMC);
@@ -700,6 +719,45 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root",
     }
     
     nt0->Fill();
+//****
+    size=0;
+    best=-1;
+    bestindex=-1;
+        
+    for (int j=0;j<BInfo_size;j++){
+	  if(BInfo_type[j]>7) continue;
+	  if(ifchannel[BInfo_type[j]-1]!=1) continue;
+
+	  if (!MuonInfo_passMuID[BInfo_uj_rfmu1_index[BInfo_rfuj_index[j]]]) continue;
+	  if (!MuonInfo_passMuID[BInfo_uj_rfmu2_index[BInfo_rfuj_index[j]]]) continue;
+
+	  b4Pout->SetXYZM(BInfo_px[j],BInfo_py[j],BInfo_pz[j],BInfo_mass[j]);
+	  temy = b4Pout->Rapidity();
+	
+	  if(!IsEventSelected_pPb5TeV(REAL,PbpMC,EvtInfo_RunNo,temy)) continue;
+		
+	  if(BInfo_mass[j]<massmincut || BInfo_mass[j]>massmaxcut) continue;
+	  if(BInfo_pt[j]<ptmincut) continue;
+	  iscandselected=false;
+	
+	  if(BInfo_type[j]==4 || BInfo_type[j]==5){
+	    fillTree(bP,bVtx,b4P,j,type4size,KAON_MASS,PION_MASS,REAL,PbpMC);
+	    iscandselected=IsBzeroCandidateSelected(chi2cl[type4size],trk1Pt[type4size],mumumass[type4size],(d0[type4size]/d0Err[type4size]),cos(dtheta[type4size]),tktkmass[type4size]);
+	  	if(chi2cl[type4size]>best&&iscandselected &&HLT_PAMu3_v1){
+	  	  best = chi2cl[type4size];
+		  bestindex = type4size;
+	    }
+	    type4size++;
+	  }  
+    }  
+    
+    if(bestindex>-1){
+      bestchi2 = bestindex;
+      isbestchi2[bestindex] = 1;
+    }
+    
+    nt3->Fill();
+//****
 
     if(!REAL){
 	  Gensize = 0;
@@ -778,9 +836,17 @@ Bool_t IsEventSelected_pPb5TeV(bool myisReal, bool myispbpmc, int myevtnumber, d
 Bool_t IsBplusCandidateSelected(double mychi2cl,double mytrk1Pt,double mymumumass,double myd0d0err,double mycostheta){
   
   bool flag=false;
-  if(mychi2cl>chi2clCut&&mytrk1Pt>trkPtCut&&myd0d0err>d0d0ErrCut&&abs(mymumumass-3.096916)<mumumassCut&&mycostheta>cosdthetaCut) flag=true;
+  if(mychi2cl>chi2clCutBplus&&mytrk1Pt>trkPtCutBplus&&myd0d0err>d0d0ErrCutBplus&&abs(mymumumass-3.096916)<mumumassCut&&mycostheta>cosdthetaCutBplus) flag=true;
   return flag;
 }
+
+Bool_t IsBzeroCandidateSelected(double mychi2cl,double mytrk1Pt,double mymumumass,double myd0d0err,double mycostheta,double invmasstktk){
+    
+  bool flag=false;
+  if(mychi2cl>chi2clCutBzero&&mytrk1Pt>trkPtCutBzero&&myd0d0err>d0d0ErrCutBzero&&abs(mymumumass-3.096916)<mumumassCut&&mycostheta>cosdthetaCutBzero&&abs(invmasstktk-0.89594)<invmasstktkBzero) flag=true;
+  return flag;
+}
+
 
 
 void TrackDirectGenLabel(int myparticlegeninfo,int mypdgparticle,int myBmesongeninfo,int mypdgBmeson,

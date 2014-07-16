@@ -32,7 +32,8 @@ Float_t cosdthetaCut=-3.46e-01;
 Float_t mumumassCut=0.15;
 
 void fillTree(TVector3* bP, TVector3* bVtx, TLorentzVector* b4P, int j, int typesize, float track_mass1, float track_mass2, int REAL, int PbpMC)
-{
+{ 
+  void TrackDirectGenLabel(int,int,int,int,int,int,int&,int&,int&);
 
   //Event Info
   Event = EvtInfo_EvtNo;
@@ -276,114 +277,117 @@ void fillTree(TVector3* bP, TVector3* bVtx, TLorentzVector* b4P, int j, int type
 
   //gen info judgement
 
-  if(!REAL)
-    {
-      gen[typesize] = 0;//gen init
-      genIndex[typesize] = -1;//gen init
-      genpt[typesize] = -1;
-      geneta[typesize] = -20;
-      genphi[typesize] = -20;
-      geny[typesize] = -1;
-      int mGenIdxTk1=-1;
-      int mGenIdxTk2=-1;
-      int bGenIdxTk1=-1;
-      int bGenIdxTk2=-1;
-      int bGenIdxMu1=-1;
-      int bGenIdxMu2=-1;
-      int ujGenIdxMu1=-1;
-      int ujGenIdxMu2=-1;
+  if(!REAL){
+    gen[typesize] = 0;//gen init
+    genIndex[typesize] = -1;//gen init
+    genpt[typesize] = -1;
+    geneta[typesize] = -20;
+    genphi[typesize] = -20;
+    geny[typesize] = -1;
       
-      float BId,MId,tk1Id,tk2Id;
-      //tk1:positive, tk2:negtive
-      if(BInfo_type[j]==1)
-	{
+    int mGenIdxTk1=-1;
+    int mGenIdxTk2=-1;
+    int bGenIdxTk1=-1;
+    int bGenIdxTk2=-1;
+    int bGenIdxMu1=-1;
+    int bGenIdxMu2=-1;
+    int ujGenIdxMu1=-1;
+    int ujGenIdxMu2=-1;
+      
+    float BId,MId,tk1Id,tk2Id;
+    //tk1:positive, tk2:negtive
+    if(BInfo_type[j]==1){
 	  BId = 521;//B+-
 	  MId = -1;
 	  tk1Id = 321;//K+-
 	  tk2Id = -1;
 	}
-      if(BInfo_type[j]==2)
-	{
+    if(BInfo_type[j]==2){
 	  BId = 521;//B+-
 	  MId = -1;
 	  tk1Id = 211;//pi+-
 	  tk2Id = -1;
 	}
-      if(BInfo_type[j]==3)
-	{
+    if(BInfo_type[j]==3){
 	  BId = 511;//B0
 	  MId = 310;//Ks
 	  tk1Id = 211;//pi+
 	  tk2Id = 211;//pi-
 	}
-      if(BInfo_type[j]==4)
-	{
+    if(BInfo_type[j]==4){
 	  BId = 511;//B0
 	  MId = 313;//K*0
 	  tk1Id = 321;//K+
 	  tk2Id = 211;//pi-
 	}
-      if(BInfo_type[j]==5)
-	{
+    if(BInfo_type[j]==5){
 	  BId = 511;//B0
 	  MId = 313;//K*0
 	  tk1Id = 211;//pi+
 	  tk2Id = 321;//K-
 	}
-      if(BInfo_type[j]==6)
-	{
+    if(BInfo_type[j]==6){
 	  BId = 531;//Bs
 	  MId = 333;//phi
 	  tk1Id = 321;//K+
 	  tk2Id = 321;//K-
 	}
       
-      int twoTks,kStar,flagkstar=0;
-      if(BInfo_type[j]==1 || BInfo_type[j]==2) twoTks=0;
-      else twoTks=1;
-      if(BInfo_type[j]==4 || BInfo_type[j]==5) kStar=1;
-      else kStar=0;
-      int nonprompt=0,prompt=0;
+    int twoTks,kStar,flagkstar=0;
+    if(BInfo_type[j]==1 || BInfo_type[j]==2) twoTks=0;
+    else twoTks=1;
+    if(BInfo_type[j]==4 || BInfo_type[j]==5) kStar=1;
+    else kStar=0;
+    //int nonprompt=0
+    int prompt=0;
+    
+    int leveltk1=-1;
+    
+    int tk1geninfo=TrackInfo_geninfo_index[BInfo_rftk1_index[j]];
+    int tk1pdg=abs(GenInfo_pdgId[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]);
+    int mothertk1geninfo=GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]];
+    int mothertk1pdg=abs(GenInfo_pdgId[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]]);
 
+    int tk2geninfo=TrackInfo_geninfo_index[BInfo_rftk2_index[j]];
+    int tk2pdg=abs(GenInfo_pdgId[TrackInfo_geninfo_index[BInfo_rftk2_index[j]]]);
+    int mothertk2geninfo=GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk2_index[j]]];
+    int mothertk2pdg=abs(GenInfo_pdgId[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk2_index[j]]]]);
+    
+    if(!twoTks) TrackDirectGenLabel(tk1geninfo,tk1pdg,mothertk1geninfo,mothertk1pdg,tk1Id,BId,mGenIdxTk1,bGenIdxTk1,leveltk1);  
+        
+    gen[typesize]=leveltk1;
+
+/*
       // tk1
-      if(TrackInfo_geninfo_index[BInfo_rftk1_index[j]]>-1)
-	{
+    if(TrackInfo_geninfo_index[BInfo_rftk1_index[j]]>-1){
 	  int level =0;
-	  if(abs(GenInfo_pdgId[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]])==tk1Id)
-	    {
-	      level = 1;
-	      if(GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]>-1)
-		{
-		  if(!twoTks)//one trk channel
-		    {
-		      mGenIdxTk1=0;
-		      if(abs(GenInfo_pdgId[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]])==BId)
-			{
-			  level = 3;
+	  if(abs(GenInfo_pdgId[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]])==tk1Id){
+	    level = 1;
+	    if(GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]>-1){
+		  if(!twoTks){//one trk channel
+		    mGenIdxTk1=0;
+		    if(abs(GenInfo_pdgId[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]])==BId){
+		      level = 3;
 			  bGenIdxTk1=GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]];
-			}		  
-		    }
-		  else//two trk channel
-		    {
-		      if(abs(GenInfo_pdgId[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]])==MId)
-			{
+		    }		  
+	  	  }
+		  else{//two trk channel
+		    if(abs(GenInfo_pdgId[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]])==MId){
 			  level = 2;
-			  if(GenInfo_mo1[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]]>-1)
-			    {
-			      if(abs(GenInfo_pdgId[GenInfo_mo1[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]]])==BId)
-				{
+			  if(GenInfo_mo1[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]]>-1){
+			    if(abs(GenInfo_pdgId[GenInfo_mo1[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]]])==BId){
 				  level = 3;
 				  bGenIdxTk1=GenInfo_mo1[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]];
 				}
-			    }
+			  }
 			  mGenIdxTk1=GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]];
 			}
-		    }
+		  }
 		}
-	    }
+	  }
 	  gen[typesize]=level;
 	}
-      
+	*/
       //tk2
       if(!twoTks)//one trk channel
 	{
@@ -865,4 +869,23 @@ Bool_t IsBplusCandidateSelected(double mychi2cl,double mytrk1Pt,double mymumumas
   bool flag=false;
   if(mychi2cl>chi2clCut&&mytrk1Pt>trkPtCut&&myd0d0err>d0d0ErrCut&&abs(mymumumass-3.096916)<mumumassCut&&mycostheta>cosdthetaCut) flag=true;
   return flag;
+}
+
+
+void TrackDirectGenLabel(int myparticlegeninfo,int mypdgparticle,int myBmesongeninfo,int mypdgBmeson,
+                         int pdgparticle, int pdgBmeson,int &mymindex,int &myBindex, int &mylabel){
+                                                
+  if(myparticlegeninfo>-1){  
+    mylabel=0;
+	if(mypdgparticle==pdgparticle){
+	  mylabel=1;
+	  if(myBmesongeninfo>-1){ 
+	    mymindex=0.;
+		if(mypdgBmeson==pdgBmeson){
+		  mylabel=3;
+		  myBindex=myBmesongeninfo;
+		}
+	  }
+	}
+  }
 }

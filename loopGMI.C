@@ -26,8 +26,6 @@ Float_t d0d0ErrCut=3.41;
 Float_t cosdthetaCut=-3.46e-01;
 Float_t mumumassCut=0.15;
 
-
-
 void fillTree(TVector3* bP, TVector3* bVtx, TLorentzVector* b4P, int j, int typesize, float track_mass1, float track_mass2, int REAL, int PbpMC)
 {
 
@@ -768,67 +766,56 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root",
 	  if(BInfo_type[j]==1){
 	    fillTree(bP,bVtx,b4P,j,type1size,KAON_MASS,0,REAL,PbpMC);
 	    iscandselected=IsBplusCandidateSelected(chi2cl[type1size],trk1Pt[type1size],mumumass[type1size],(d0[type1size]/d0Err[type1size]),cos(dtheta[type1size]));
-	  	if(chi2cl[type1size]>best&&iscandselected){
+	  	if(chi2cl[type1size]>best&&iscandselected &&HLT_PAMu3_v1){
 	  	  best = chi2cl[type1size];
 		  bestindex = type1size;
 	    }
 	    type1size++;
-	   }
-     }
+	  }  
+    }  
     
-     if(bestindex>-1){
-       bestchi2 = bestindex;
-       isbestchi2[bestindex] = 1;
-     }
+    if(bestindex>-1){
+      bestchi2 = bestindex;
+      isbestchi2[bestindex] = 1;
+    }
+    
+    nt0->Fill();
 
-     nt0->Fill();
-
-     if(!REAL){
-	Gensize = 0;
-	for (int j=0;j<GenInfo_size;j++)
-	  {
+    if(!REAL){
+	  Gensize = 0;
+	  for (int j=0;j<GenInfo_size;j++){
+	    
 	    bGen.SetPtEtaPhiM(GenInfo_pt[j],GenInfo_eta[j],GenInfo_phi[j],GenInfo_mass[j]);
 	    flag=0;
-	    for(type=1;type<8;type++)
-	      {
-		if (signalGen(type,j)) {
-                  flag=type;
-		  break;
-                }
-	      }
-	    Genmu1pt[j] = -1;
-	    Genmu1eta[j] = -20;
-	    Genmu1phi[j] = -20;
-	    Genmu1p[j] = -1;
-	    Genmu2pt[j] = -1;
-	    Genmu2eta[j] = -20;
-	    Genmu2phi[j] = -20;
-	    Genmu2p[j] = -1;
-	    Gentk1pt[j] = -1;
-	    Gentk1eta[j] = -20;
-	    Gentk1phi[j] = -20;
-	    Gentk2pt[j] = -1;
-	    Gentk2eta[j] = -20;
-	    Gentk2phi[j] = -20;
+	    
+	    for(type=1;type<8;type++){
+		  if(signalGen(type,j)) {
+            flag=type;
+		    break;
+          }
+	    }
+	    
+	    Genmu1pt[j] = -1; Genmu1eta[j] = -20; Genmu1phi[j] = -20; Genmu1p[j] = -1;
+	    Genmu2pt[j] = -1; Genmu2eta[j] = -20; Genmu2phi[j] = -20; Genmu2p[j] = -1;
+	    Gentk1pt[j] = -1; Gentk1eta[j] = -20; Gentk1phi[j] = -20; 
+	    Gentk2pt[j] = -1; Gentk2eta[j] = -20; Gentk2phi[j] = -20;
 
-            if(flag!=0)
-              {
-                Genmu1pt[j] = GenInfo_pt[GenInfo_da1[GenInfo_da1[j]]];
-                Genmu1eta[j] = GenInfo_eta[GenInfo_da1[GenInfo_da1[j]]];
-                Genmu1phi[j] = GenInfo_phi[GenInfo_da1[GenInfo_da1[j]]];
-                Genmu1p[j] = Genmu1pt[j]*cosh(Genmu1eta[j]);
-                Genmu2pt[j] = GenInfo_pt[GenInfo_da2[GenInfo_da1[j]]];
-                Genmu2eta[j] = GenInfo_eta[GenInfo_da2[GenInfo_da1[j]]];
-		Genmu2phi[j] = GenInfo_phi[GenInfo_da2[GenInfo_da1[j]]];
-                Genmu2p[j] = Genmu2pt[j]*cosh(Genmu2eta[j]);
-		if(flag==1||flag==2)
-		  {
+        if(flag!=0){
+          Genmu1pt[j] = GenInfo_pt[GenInfo_da1[GenInfo_da1[j]]];
+          Genmu1eta[j] = GenInfo_eta[GenInfo_da1[GenInfo_da1[j]]];
+          Genmu1phi[j] = GenInfo_phi[GenInfo_da1[GenInfo_da1[j]]];
+          Genmu1p[j] = Genmu1pt[j]*cosh(Genmu1eta[j]);
+          Genmu2pt[j] = GenInfo_pt[GenInfo_da2[GenInfo_da1[j]]];
+          Genmu2eta[j] = GenInfo_eta[GenInfo_da2[GenInfo_da1[j]]];
+		  Genmu2phi[j] = GenInfo_phi[GenInfo_da2[GenInfo_da1[j]]];
+          Genmu2p[j] = Genmu2pt[j]*cosh(Genmu2eta[j]);
+		
+		  if(flag==1||flag==2){
+		  
 		    Gentk1pt[j] = GenInfo_pt[GenInfo_da2[j]];
 		    Gentk1eta[j] = GenInfo_eta[GenInfo_da2[j]];
 		    Gentk1phi[j] = GenInfo_phi[GenInfo_da2[j]];
-		  }
-		else
-		  {
+		    }else{
 		    Gentk1pt[j] = GenInfo_pt[GenInfo_da1[GenInfo_da2[j]]];
 		    Gentk1eta[j] = GenInfo_eta[GenInfo_da1[GenInfo_da2[j]]];
 		    Gentk1phi[j] = GenInfo_phi[GenInfo_da1[GenInfo_da2[j]]];
@@ -836,7 +823,8 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root",
 		    Gentk2eta[j] = GenInfo_eta[GenInfo_da2[GenInfo_da2[j]]];
 		    Gentk2phi[j] = GenInfo_phi[GenInfo_da2[GenInfo_da2[j]]];
 		  }
-              }
+        }
+	    
 	    Gensize = GenInfo_size;
 	    Geny[j] = bGen.Rapidity();
 	    Geneta[j] = bGen.Eta();
@@ -845,12 +833,9 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root",
 	    GenpdgId[j] = GenInfo_pdgId[j];
 	    GenisSignal[j] = flag;
 	  }
-	ntGen->Fill();
-    
+  	  ntGen->Fill(); 
 	}
-
   }
-
   outf->Write();
   outf->Close();
 }
@@ -873,7 +858,6 @@ Bool_t IsEventSelected_pPb5TeV(bool myisReal, bool myispbpmc, int myevtnumber, d
 Bool_t IsBplusCandidateSelected(double mychi2cl,double mytrk1Pt,double mymumumass,double myd0d0err,double mycostheta){
   
   bool flag=false;
-  if(mychi2cl>chi2clCut&&mytrk1Pt>trkPtCut&&myd0d0err>d0d0ErrCut&&abs(mymumumass-3.096916)<mumumassCut&&mycostheta>mumumassCut) flag=true;
+  if(mychi2cl>chi2clCut&&mytrk1Pt>trkPtCut&&myd0d0err>d0d0ErrCut&&abs(mymumumass-3.096916)<mumumassCut&&mycostheta>cosdthetaCut) flag=true;
   return flag;
 }
-

@@ -17,6 +17,17 @@
 #define PHI_MASS    1.019455
 #define JPSI_MASS   3.096916
 
+Double_t massmincut=5.;
+Double_t massmaxcut=6.;
+Double_t ptmincut=10.;
+Float_t trkPtCut=0.9;
+Float_t chi2clCut=1.32e-02;
+Float_t d0d0ErrCut=3.41;
+Float_t cosdthetaCut=-3.46e-01;
+Float_t mumumassCut=0.15;
+
+
+
 void fillTree(TVector3* bP, TVector3* bVtx, TLorentzVector* b4P, int j, int typesize, float track_mass1, float track_mass2, int REAL, int PbpMC)
 {
 
@@ -666,11 +677,9 @@ int signalGen(int Btype, int j)
 void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root", 
              string outfile="Modified/testModified.root", bool REAL=0,bool PbpMC=0,int nEntries=0){
 	  
+  Bool_t IsEventSelected_pPb5TeV(bool,bool,int,double);
+  Bool_t IsBplusCandidateSelected(double,double,double,double,double);
 	  
-  Double_t massmincut=5.;
-  Double_t massmaxcut=6.;
-  Double_t ptmincut=10.;
-  
   const char* infname;
   const char* outfname;
 
@@ -732,55 +741,49 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root",
 
     if (i%10000==0) cout <<i<<" / "<<nentries<<"   offset HLT:"<<offsetHltTree<<endl;
 
-    int type1size=0,type2size=0,type3size=0,type4size=0,type5size=0,type6size=0,type7size=0;
-    float best,best2,temy;
-    int bestindex,best2index;
+    int type1size=0;
+    float best,temy;
+    int bestindex;
 
     size=0;
     best=-1;
     bestindex=-1;
-    best2=10000.;
-    best2index=-1;
-    
-    
-    for (int j=0;j<BInfo_size;j++) 
-      {
-	if(BInfo_type[j]>7) continue;
-	if(ifchannel[BInfo_type[j]-1]!=1) continue;
+        
+    for (int j=0;j<BInfo_size;j++){
+	  if(BInfo_type[j]>7) continue;
+	  if(ifchannel[BInfo_type[j]-1]!=1) continue;
 
-	if (!MuonInfo_passMuID[BInfo_uj_rfmu1_index[BInfo_rfuj_index[j]]]) continue;
-	if (!MuonInfo_passMuID[BInfo_uj_rfmu2_index[BInfo_rfuj_index[j]]]) continue;
+	  if (!MuonInfo_passMuID[BInfo_uj_rfmu1_index[BInfo_rfuj_index[j]]]) continue;
+	  if (!MuonInfo_passMuID[BInfo_uj_rfmu2_index[BInfo_rfuj_index[j]]]) continue;
 
-	b4Pout->SetXYZM(BInfo_px[j],BInfo_py[j],BInfo_pz[j],BInfo_mass[j]);
-	temy = b4Pout->Rapidity();
-	if(REAL){
-	   if(!(((EvtInfo_RunNo>=210498&&EvtInfo_RunNo<=211256&&abs(temy+0.465)<1.93)||(EvtInfo_RunNo>=211313&&EvtInfo_RunNo<=211631&&abs(temy-0.465)<1.93)))) continue;
-	}else{
-	  if((PbpMC==0)&&abs(temy+0.465)>=1.93) continue;
-	  if((PbpMC==1)&&abs(temy-0.465)>=1.93) continue;
-	}
+	  b4Pout->SetXYZM(BInfo_px[j],BInfo_py[j],BInfo_pz[j],BInfo_mass[j]);
+	  temy = b4Pout->Rapidity();
 	
-	if(BInfo_mass[j]<massmincut || BInfo_mass[j]>massmaxcut) continue;
-	if(BInfo_pt[j]<ptmincut) continue;
+	  if(!IsEventSelected_pPb5TeV(REAL,PbpMC,EvtInfo_RunNo,temy)) continue;
+		
+	  if(BInfo_mass[j]<massmincut || BInfo_mass[j]>massmaxcut) continue;
+	  if(BInfo_pt[j]<ptmincut) continue;
+	  bool iscandselected=false;
 	
-	if(BInfo_type[j]==1){
-	  fillTree(bP,bVtx,b4P,j,type1size,KAON_MASS,0,REAL,PbpMC);
-	  if(chi2cl[type1size]>best&&trk1Pt[type1size]>0.9&&HLT_PAMu3_v1&&abs(mumumass[type1size]-3.096916)<0.15&&chi2cl[type1size]>1.32e-02&&(d0[type1size]/d0Err[type1size])>3.41&&cos(dtheta[type1size])>-3.46e-01){
-		best = chi2cl[type1size];
-		bestindex = type1size;
-	  }
-	  type1size++;
-	 }
-    }
+	  if(BInfo_type[j]==1){
+	    fillTree(bP,bVtx,b4P,j,type1size,KAON_MASS,0,REAL,PbpMC);
+	    iscandselected=IsBplusCandidateSelected(chi2cl[type1size],trk1Pt[type1size],mumumass[type1size],(d0[type1size]/d0Err[type1size]),cos(dtheta[type1size]));
+	  	if(chi2cl[type1size]>best&&iscandselected){
+	  	  best = chi2cl[type1size];
+		  bestindex = type1size;
+	    }
+	    type1size++;
+	   }
+     }
     
-    if(bestindex>-1){
-      bestchi2 = bestindex;
-      isbestchi2[bestindex] = 1;
-    }
-    nt0->Fill();
+     if(bestindex>-1){
+       bestchi2 = bestindex;
+       isbestchi2[bestindex] = 1;
+     }
 
-    if(!REAL)
-      {
+     nt0->Fill();
+
+     if(!REAL){
 	Gensize = 0;
 	for (int j=0;j<GenInfo_size;j++)
 	  {
@@ -852,4 +855,25 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root",
   outf->Close();
 }
 
+Bool_t IsEventSelected_pPb5TeV(bool myisReal, bool myispbpmc, int myevtnumber, double myrapidity){
+
+  bool flag=false;
+  
+  if(myisReal){
+    if((((myevtnumber>=210498&&myevtnumber<=211256&&abs(myrapidity+0.465)<1.93)||(myevtnumber>=211313&&myevtnumber<=211631&&abs(myrapidity-0.465)<1.93)))) flag=true;
+  }
+  if(!myisReal){
+    if((myispbpmc==0)&&(!(abs(myrapidity+0.465)>=1.93))) flag=true;
+    if((myispbpmc==1)&&(!(abs(myrapidity-0.465)>=1.93))) flag=true;
+  }
+  return flag;
+}
+
+
+Bool_t IsBplusCandidateSelected(double mychi2cl,double mytrk1Pt,double mymumumass,double myd0d0err,double mycostheta){
+  
+  bool flag=false;
+  if(mychi2cl>chi2clCut&&mytrk1Pt>trkPtCut&&myd0d0err>d0d0ErrCut&&abs(mymumumass-3.096916)<mumumassCut&&mycostheta>mumumassCut) flag=true;
+  return flag;
+}
 

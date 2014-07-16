@@ -34,6 +34,7 @@ Float_t mumumassCut=0.15;
 void fillTree(TVector3* bP, TVector3* bVtx, TLorentzVector* b4P, int j, int typesize, float track_mass1, float track_mass2, int REAL, int PbpMC)
 { 
   void TrackDirectGenLabel(int,int,int,int,int,int,int&,int&,int&);
+  void ParticleResonanceGenLabel(int,int,int,int,int,int,int,int,int,int&,int&,int&);
 
   //Event Info
   Event = EvtInfo_EvtNo;
@@ -341,151 +342,59 @@ void fillTree(TVector3* bP, TVector3* bVtx, TLorentzVector* b4P, int j, int type
     //int nonprompt=0
     int prompt=0;
     
-    int leveltk1=-1;
+    int leveltk1=0;
+    int leveltk2=0;
+    int levelmuon1=0;
+    int levelmuon2=0;
     
     int tk1geninfo=TrackInfo_geninfo_index[BInfo_rftk1_index[j]];
     int tk1pdg=abs(GenInfo_pdgId[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]);
     int mothertk1geninfo=GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]];
     int mothertk1pdg=abs(GenInfo_pdgId[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]]);
-
+    int grandmothertk1geninfo=GenInfo_mo1[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]];
+    int grandmothertk1pdg=abs(GenInfo_pdgId[GenInfo_mo1[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]]]);
+    
     int tk2geninfo=TrackInfo_geninfo_index[BInfo_rftk2_index[j]];
     int tk2pdg=abs(GenInfo_pdgId[TrackInfo_geninfo_index[BInfo_rftk2_index[j]]]);
     int mothertk2geninfo=GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk2_index[j]]];
     int mothertk2pdg=abs(GenInfo_pdgId[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk2_index[j]]]]);
+    int grandmothertk2geninfo=GenInfo_mo1[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk2_index[j]]]];
+    int grandmothertk2pdg=abs(GenInfo_pdgId[GenInfo_mo1[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk2_index[j]]]]]);
     
-    if(!twoTks) TrackDirectGenLabel(tk1geninfo,tk1pdg,mothertk1geninfo,mothertk1pdg,tk1Id,BId,mGenIdxTk1,bGenIdxTk1,leveltk1);  
-        
+    int muon1geninfo=MuonInfo_geninfo_index[BInfo_uj_rfmu1_index[BInfo_rfuj_index[j]]];
+    int muon1pdg=abs(GenInfo_pdgId[MuonInfo_geninfo_index[BInfo_uj_rfmu1_index[BInfo_rfuj_index[j]]]]);
+    int mothermuon1geninfo=GenInfo_mo1[MuonInfo_geninfo_index[BInfo_uj_rfmu1_index[BInfo_rfuj_index[j]]]];
+    int mothermuon1pdg=GenInfo_pdgId[GenInfo_mo1[MuonInfo_geninfo_index[BInfo_uj_rfmu1_index[BInfo_rfuj_index[j]]]]];
+    int grandmothermuon1geninfo=GenInfo_mo1[GenInfo_mo1[MuonInfo_geninfo_index[BInfo_uj_rfmu1_index[BInfo_rfuj_index[j]]]]];
+    int grandmothermuon1pdg=abs(GenInfo_pdgId[GenInfo_mo1[GenInfo_mo1[MuonInfo_geninfo_index[BInfo_uj_rfmu1_index[BInfo_rfuj_index[j]]]]]]);
+
+    int muon2geninfo=MuonInfo_geninfo_index[BInfo_uj_rfmu2_index[BInfo_rfuj_index[j]]];
+    int muon2pdg=abs(GenInfo_pdgId[MuonInfo_geninfo_index[BInfo_uj_rfmu2_index[BInfo_rfuj_index[j]]]]);
+    int mothermuon2geninfo=GenInfo_mo1[MuonInfo_geninfo_index[BInfo_uj_rfmu2_index[BInfo_rfuj_index[j]]]];
+    int mothermuon2pdg=GenInfo_pdgId[GenInfo_mo1[MuonInfo_geninfo_index[BInfo_uj_rfmu2_index[BInfo_rfuj_index[j]]]]];
+    int grandmothermuon2geninfo=GenInfo_mo1[GenInfo_mo1[MuonInfo_geninfo_index[BInfo_uj_rfmu2_index[BInfo_rfuj_index[j]]]]];
+    int grandmothermuon2pdg=abs(GenInfo_pdgId[GenInfo_mo1[GenInfo_mo1[MuonInfo_geninfo_index[BInfo_uj_rfmu2_index[BInfo_rfuj_index[j]]]]]]);
+
+    if(!twoTks) TrackDirectGenLabel(tk1geninfo,tk1pdg,mothertk1geninfo,mothertk1pdg,tk1Id,BId,mGenIdxTk1,bGenIdxTk1,leveltk1);      
+    else ParticleResonanceGenLabel(tk1geninfo,tk1pdg,mothertk1geninfo,mothertk1pdg,grandmothertk1geninfo,grandmothertk1pdg,tk1Id,MId,BId,mGenIdxTk1,bGenIdxTk1,leveltk1);  
     gen[typesize]=leveltk1;
 
-/*
-      // tk1
-    if(TrackInfo_geninfo_index[BInfo_rftk1_index[j]]>-1){
-	  int level =0;
-	  if(abs(GenInfo_pdgId[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]])==tk1Id){
-	    level = 1;
-	    if(GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]>-1){
-		  if(!twoTks){//one trk channel
-		    mGenIdxTk1=0;
-		    if(abs(GenInfo_pdgId[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]])==BId){
-		      level = 3;
-			  bGenIdxTk1=GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]];
-		    }		  
-	  	  }
-		  else{//two trk channel
-		    if(abs(GenInfo_pdgId[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]])==MId){
-			  level = 2;
-			  if(GenInfo_mo1[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]]>-1){
-			    if(abs(GenInfo_pdgId[GenInfo_mo1[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]]])==BId){
-				  level = 3;
-				  bGenIdxTk1=GenInfo_mo1[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]]];
-				}
-			  }
-			  mGenIdxTk1=GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk1_index[j]]];
-			}
-		  }
-		}
-	  }
-	  gen[typesize]=level;
-	}
-	*/
       //tk2
-      if(!twoTks)//one trk channel
-	{
+    if(!twoTks){  //one trk channel
 	  gen[typesize]+=30;
 	  mGenIdxTk2=0;
 	  bGenIdxTk2=0;
 	}
-      else//two trk channel
-	{
-	  if(TrackInfo_geninfo_index[BInfo_rftk2_index[j]]>-1)
-	    {
-	      int level =0;
-	      if(abs(GenInfo_pdgId[TrackInfo_geninfo_index[BInfo_rftk2_index[j]]])==tk2Id)
-		{
-		  level = 1;
-		  if(GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk2_index[j]]]>-1)
-		    {
-		      if(abs(GenInfo_pdgId[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk2_index[j]]]])==MId)
-			{
-			  level = 2;
-			  if(GenInfo_mo1[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk2_index[j]]]]>-1)
-			    {
-			      if(abs(GenInfo_pdgId[GenInfo_mo1[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk2_index[j]]]]])==BId)
-				{
-				  level = 3;
-				  bGenIdxTk2 = GenInfo_mo1[GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk2_index[j]]]];
-				}
-			    }
-			  mGenIdxTk2 = GenInfo_mo1[TrackInfo_geninfo_index[BInfo_rftk2_index[j]]];
-			}
-		    }
-		}
-	      gen[typesize]+=(level*10);
-	    }
-	}
-
-      
-      //mu1
-      //cout<<MuonInfo_geninfo_index[BInfo_uj_rfmu1_index[BInfo_rfuj_index[j]]]<<endl;
-      if(MuonInfo_geninfo_index[BInfo_uj_rfmu1_index[BInfo_rfuj_index[j]]]>-1)
-	{
-	  int level =0;
-	  if(abs(GenInfo_pdgId[MuonInfo_geninfo_index[BInfo_uj_rfmu1_index[BInfo_rfuj_index[j]]]])==13)
-	    {
-	      level=1;
-	      if(GenInfo_mo1[MuonInfo_geninfo_index[BInfo_uj_rfmu1_index[BInfo_rfuj_index[j]]]]>-1)
-		{
-		  if(GenInfo_pdgId[GenInfo_mo1[MuonInfo_geninfo_index[BInfo_uj_rfmu1_index[BInfo_rfuj_index[j]]]]]==443)
-		    {
-		      ujGenIdxMu1 = GenInfo_mo1[MuonInfo_geninfo_index[BInfo_uj_rfmu1_index[BInfo_rfuj_index[j]]]];
-		      level=2;
-		      if(GenInfo_mo1[GenInfo_mo1[MuonInfo_geninfo_index[BInfo_uj_rfmu1_index[BInfo_rfuj_index[j]]]]]>-1)
-			{
-			  if(abs(GenInfo_pdgId[GenInfo_mo1[GenInfo_mo1[MuonInfo_geninfo_index[BInfo_uj_rfmu1_index[BInfo_rfuj_index[j]]]]]])==BId)
-			    {
-			      //nonprompt=1;
-			      level = 3;
-			      bGenIdxMu1=GenInfo_mo1[GenInfo_mo1[MuonInfo_geninfo_index[BInfo_uj_rfmu1_index[BInfo_rfuj_index[j]]]]];
-			      flagkstar++;///////////////////////////////////////////////=1
-			    }
-			}
-		      else 
-			{
-			  prompt=1;
-			}
-		    } 
-		}
-	    }
-	  gen[typesize]+=(level*100);
-	}
-      
-      //mu2
-      if(MuonInfo_geninfo_index[BInfo_uj_rfmu2_index[BInfo_rfuj_index[j]]]>-1)
-	{  
-	  int level =0;
-	  if(abs(GenInfo_pdgId[MuonInfo_geninfo_index[BInfo_uj_rfmu2_index[BInfo_rfuj_index[j]]]])==13)
-	    {
-	      level = 1;
-	      if(GenInfo_mo1[MuonInfo_geninfo_index[BInfo_uj_rfmu2_index[BInfo_rfuj_index[j]]]]>-1)
-		{
-		  if(GenInfo_pdgId[GenInfo_mo1[MuonInfo_geninfo_index[BInfo_uj_rfmu2_index[BInfo_rfuj_index[j]]]]]==443)
-		    {
-		      ujGenIdxMu2 = GenInfo_mo1[MuonInfo_geninfo_index[BInfo_uj_rfmu2_index[BInfo_rfuj_index[j]]]];
-		      level = 2;
-		      if(GenInfo_mo1[GenInfo_mo1[MuonInfo_geninfo_index[BInfo_uj_rfmu2_index[BInfo_rfuj_index[j]]]]]>-1)
-			{
-			  if(abs(GenInfo_pdgId[GenInfo_mo1[GenInfo_mo1[MuonInfo_geninfo_index[BInfo_uj_rfmu2_index[BInfo_rfuj_index[j]]]]]])==BId)
-			    {
-			      level = 3;
-			      bGenIdxMu2=GenInfo_mo1[GenInfo_mo1[MuonInfo_geninfo_index[BInfo_uj_rfmu2_index[BInfo_rfuj_index[j]]]]];
-			      flagkstar++;///////////////////////////////////////////////////=2
-			    }
-			}
-		    }
-		}
-	    }
-	  gen[typesize]+=(level*1000);
-	}
+    else{
+      ParticleResonanceGenLabel(tk2geninfo,tk2pdg,mothertk2geninfo,mothertk2pdg,grandmothertk2geninfo,grandmothertk2pdg,tk2Id,MId,BId,mGenIdxTk2,bGenIdxTk2,leveltk2);  
+      gen[typesize]+=(leveltk2*10);
+    }
+    
+    ParticleResonanceGenLabel(muon1geninfo,muon1pdg,mothermuon1geninfo,mothermuon1pdg,grandmothermuon1geninfo,grandmothermuon1pdg,13,443,BId,ujGenIdxMu1,bGenIdxMu1,levelmuon1);
+    gen[typesize]+=(levelmuon1*100);
+    
+    ParticleResonanceGenLabel(muon2geninfo,muon2pdg,mothermuon2geninfo,mothermuon2pdg,grandmothermuon2geninfo,grandmothermuon2pdg,13,443,BId,ujGenIdxMu2,bGenIdxMu2,levelmuon2);
+    gen[typesize]+=(levelmuon2*1000);
 
       int level=0;
       if(mGenIdxTk1!=-1 && mGenIdxTk2!=-1)
@@ -884,6 +793,32 @@ void TrackDirectGenLabel(int myparticlegeninfo,int mypdgparticle,int myBmesongen
 		if(mypdgBmeson==pdgBmeson){
 		  mylabel=3;
 		  myBindex=myBmesongeninfo;
+		}
+	  }
+	}
+  }
+}
+
+void ParticleResonanceGenLabel(int myparticlegeninfo,int mypdgparticle,
+                            int mymothermesongeninfo,int mypdgmother,
+                            int myBmesongeninfo,int mypdgBmeson,
+                            int pdgparticle, int pdgmother, int pdgBmeson,
+                            int &mymindex,int &myBindex, int &mylabel){
+                                                
+  if(myparticlegeninfo>-1){  
+    mylabel=0;
+	if(mypdgparticle==pdgparticle){
+	  mylabel=1;
+	  if(mymothermesongeninfo>-1){ 
+		if(mypdgmother==pdgmother){
+		  mylabel=2;
+		  if(myBmesongeninfo>-1){
+		    if(mypdgBmeson==pdgBmeson){
+		    mylabel=3;
+		    myBindex=myBmesongeninfo;
+		    }
+		  }
+		  mymindex=mymothermesongeninfo;
 		}
 	  }
 	}

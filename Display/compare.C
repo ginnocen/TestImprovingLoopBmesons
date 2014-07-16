@@ -2,8 +2,9 @@ void compare(){
 
 TFile *infOriginal = new TFile("../Original/testOriginal.root");
 TFile *infModified = new TFile("../Modified/testModified.root");
-TTree *ntOriginal = (TTree*) infOriginal->Get("ntKp");
-TTree *ntModified = (TTree*) infModified->Get("ntKp");
+
+TTree *ntOriginal = (TTree*) infOriginal->Get("ntKstar");
+TTree *ntModified = (TTree*) infModified->Get("ntKstar");
 
 TTree *ntOriginalGen = (TTree*) infOriginal->Get("ntGen");
 TTree *ntModifiedGen = (TTree*) infModified->Get("ntGen");

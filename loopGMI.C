@@ -38,6 +38,11 @@ Float_t d0d0ErrCutBzero=4.16;
 Float_t cosdthetaCutBzero=7.50e-01;
 Float_t invmasstktkBzero=2.33e-01;
 
+Float_t trkPtCutBsubs=0.7;
+Float_t chi2clCutBsubs=3.71e-02;
+Float_t d0d0ErrCutBsubs=3.37;
+Float_t cosdthetaCutBsubs=2.60e-01;
+Float_t invmasstktkBsubs=1.55e-02;
 
 void fillTree(TVector3* bP, TVector3* bVtx, TLorentzVector* b4P, int j, int typesize, float track_mass1, float track_mass2, int REAL, int PbpMC)
 { 
@@ -307,7 +312,7 @@ void fillTree(TVector3* bP, TVector3* bVtx, TLorentzVector* b4P, int j, int type
     int flagkstar=0;
     bool kStar=false;
         
-    setPDGcode(BInfo_type[j],BId,MId,tk1Id,tk2Id,twoTks,kStar);
+    setPDGcodeGen(BInfo_type[j],BId,MId,tk1Id,tk2Id,twoTks,kStar);
 
     int prompt=0;
     
@@ -419,9 +424,8 @@ void fillTree(TVector3* bP, TVector3* bVtx, TLorentzVector* b4P, int j, int type
 int signalGen(int Btype, int j)
 {
   int BId,MId,tk1Id,tk2Id,twoTks;
-  bool kStar=false;
         
-  setPDGcode(Btype,BId,MId,tk1Id,tk2Id,twoTks,kStar); 
+  setPDGcode(Btype,BId,MId,tk1Id,tk2Id,twoTks); 
    
   int flag=0;
   if (abs(GenInfo_pdgId[j])==BId&&GenInfo_nDa[j]==2&&GenInfo_da1[j]!=-1&&GenInfo_da2[j]!=-1){
@@ -459,6 +463,7 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root", string
   Bool_t IsEventSelected_pPb5TeV(bool,bool,int,double);
   Bool_t IsBplusCandidateSelected(double,double,double,double,double);
   Bool_t IsBzeroCandidateSelected(double,double,double,double,double,double,double);
+  Bool_t IsBsubsCandidateSelected(double,double,double,double,double,double,double);
     
   const char* infname;
   const char* outfname;
@@ -493,7 +498,7 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root", string
   ifchannel[2] = 0; //other channel to be added
   ifchannel[3] = 1; //jpsi+K*(K+,pi-)
   ifchannel[4] = 1; //jpsi+K*(K-,pi+)
-  ifchannel[5] = 0; //other channel to be added
+  ifchannel[5] = 1; //jpsi+Phi
   ifchannel[6] = 0; //other channel to be added
 
   
@@ -501,6 +506,8 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root", string
   buildBranch(nt0);
   TTree* nt3 = new TTree("ntKstar","");
   buildBranch(nt3);
+  TTree* nt5 = new TTree("ntphi","");
+  buildBranch(nt5);
   TTree* ntGen = new TTree("ntGen","");
   buildGenBranch(ntGen);
 
@@ -532,6 +539,7 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root", string
 
     int type1size=0;
     int type4size=0;
+    int type6size=0;
     
     float best,best2,temy;
     int bestindex,best2index;
@@ -633,6 +641,60 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root", string
     
     nt3->Fill();
 
+    // Bsubs section
+
+    size=0;
+    best=-1;
+    best2=10000;
+    bestindex=-1;
+    best2index=-1;
+
+        
+    for (int j=0;j<BInfo_size;j++){
+	  if(BInfo_type[j]>7) continue;
+	  if(ifchannel[BInfo_type[j]-1]!=1) continue;
+
+	  if (!MuonInfo_passMuID[BInfo_uj_rfmu1_index[BInfo_rfuj_index[j]]]) continue;
+	  if (!MuonInfo_passMuID[BInfo_uj_rfmu2_index[BInfo_rfuj_index[j]]]) continue;
+
+	  b4Pout->SetXYZM(BInfo_px[j],BInfo_py[j],BInfo_pz[j],BInfo_mass[j]);
+	  temy = b4Pout->Rapidity();
+	
+	  if(!IsEventSelected_pPb5TeV(REAL,PbpMC,EvtInfo_RunNo,temy)) continue;
+		
+	  if(BInfo_mass[j]<massmincut || BInfo_mass[j]>massmaxcut) continue;
+	  if(BInfo_pt[j]<ptmincut) continue;
+	  iscandselected=false;
+	
+	  if(BInfo_type[j]==6){
+	    fillTree(bP,bVtx,b4P,j,type6size,KAON_MASS,KAON_MASS,REAL,PbpMC);
+	    iscandselected=IsBsubsCandidateSelected(chi2cl[type6size],trk1Pt[type6size],trk2Pt[type6size],mumumass[type6size],(d0[type6size]/d0Err[type6size]),cos(dtheta[type6size]),tktkmass[type6size]);
+	  	
+	  	if(chi2cl[type6size]>best&&iscandselected &&HLT_PAMu3_v1){
+	  	  best = chi2cl[type6size];
+		  bestindex = type6size;
+	    }
+	    if(abs(tktkmass[type6size]-PHI_MASS)<best2&&iscandselected &&HLT_PAMu3_v1){
+	  	  best2 = abs(tktkmass[type6size]-PHI_MASS);
+		  best2index = type6size;
+	    }
+	    type6size++;
+	  }  
+    }  
+    
+    if(bestindex>-1){
+      bestchi2 = bestindex;
+      isbestchi2[bestindex] = 1;
+    }
+    
+    if(best2index>-1){
+	  besttktkmass = best2index;
+	  isbesttktkmass[best2index] = 1;
+    }
+    
+    nt5->Fill();
+
+
     if(!REAL){
 	  Gensize = 0;
 	  for (int j=0;j<GenInfo_size;j++){
@@ -717,9 +779,17 @@ Bool_t IsBplusCandidateSelected(double mychi2cl,double mytrk1Pt,double mymumumas
 Bool_t IsBzeroCandidateSelected(double mychi2cl,double mytrk1Pt,double mytrk2Pt,double mymumumass,double myd0d0err,double mycostheta,double invmasstktk){
     
   bool flag=false;
-  if(mychi2cl>chi2clCutBzero&&mytrk1Pt>trkPtCutBzero&&mytrk2Pt>trkPtCutBzero&&myd0d0err>d0d0ErrCutBzero&&abs(mymumumass-3.096916)<mumumassCut&&mycostheta>cosdthetaCutBzero&&abs(invmasstktk-0.89594)<invmasstktkBzero) flag=true;
+  if(mychi2cl>chi2clCutBzero&&mytrk1Pt>trkPtCutBzero&&mytrk2Pt>trkPtCutBzero&&myd0d0err>d0d0ErrCutBzero&&abs(mymumumass-3.096916)<mumumassCut&&mycostheta>cosdthetaCutBzero&&abs(invmasstktk-KSTAR_MASS)<invmasstktkBzero) flag=true;
   return flag;
 }
+
+Bool_t IsBsubsCandidateSelected(double mychi2cl,double mytrk1Pt,double mytrk2Pt,double mymumumass,double myd0d0err,double mycostheta,double invmasstktk){
+    
+  bool flag=false;
+  if(mychi2cl>chi2clCutBsubs&&mytrk1Pt>trkPtCutBsubs&&mytrk2Pt>trkPtCutBsubs&&myd0d0err>d0d0ErrCutBsubs&&abs(mymumumass-3.096916)<mumumassCut&&mycostheta>cosdthetaCutBsubs&&abs(invmasstktk-PHI_MASS)<invmasstktkBsubs) flag=true;
+  return flag;
+}
+
 
 
 

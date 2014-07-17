@@ -620,14 +620,17 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root",
     int type1size=0;
     int type4size=0;
     
-    float best,temy;
-    int bestindex;
+    float best,best2,temy;
+    int bestindex,best2index;
 
     // Bplus section
 
     size=0;
     best=-1;
+    best2=10000;
     bestindex=-1;
+    best2index=-1;
+    
     bool iscandselected=false;
     
     for (int j=0;j<BInfo_size;j++){
@@ -668,7 +671,10 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root",
 
     size=0;
     best=-1;
+    best2=10000;
     bestindex=-1;
+    best2index=-1;
+
         
     for (int j=0;j<BInfo_size;j++){
 	  if(BInfo_type[j]>7) continue;
@@ -689,9 +695,14 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root",
 	  if(BInfo_type[j]==4 || BInfo_type[j]==5){
 	    fillTree(bP,bVtx,b4P,j,type4size,KAON_MASS,PION_MASS,REAL,PbpMC);
 	    iscandselected=IsBzeroCandidateSelected(chi2cl[type4size],trk1Pt[type4size],trk2Pt[type4size],mumumass[type4size],(d0[type4size]/d0Err[type4size]),cos(dtheta[type4size]),tktkmass[type4size]);
+	  	
 	  	if(chi2cl[type4size]>best&&iscandselected &&HLT_PAMu3_v1){
 	  	  best = chi2cl[type4size];
 		  bestindex = type4size;
+	    }
+	    if(abs(tktkmass[type4size]-KSTAR_MASS)<best2&&iscandselected &&HLT_PAMu3_v1){
+	  	  best2 = abs(tktkmass[type4size]-KSTAR_MASS);
+		  best2index = type4size;
 	    }
 	    type4size++;
 	  }  
@@ -700,6 +711,11 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root",
     if(bestindex>-1){
       bestchi2 = bestindex;
       isbestchi2[bestindex] = 1;
+    }
+    
+    if(best2index>-1){
+	  besttktkmass = best2index;
+	  isbesttktkmass[best2index] = 1;
     }
     
     nt3->Fill();

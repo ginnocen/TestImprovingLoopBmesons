@@ -3,8 +3,8 @@ void compare(){
 TFile *infOriginal = new TFile("../Original/testOriginal.root");
 TFile *infModified = new TFile("../Modified/testModified.root");
 
-TTree *ntOriginal = (TTree*) infOriginal->Get("ntKstar");
-TTree *ntModified = (TTree*) infModified->Get("ntKstar");
+TTree *ntOriginal = (TTree*) infOriginal->Get("ntphi");
+TTree *ntModified = (TTree*) infModified->Get("ntphi");
 
 TTree *ntOriginalGen = (TTree*) infOriginal->Get("ntGen");
 TTree *ntModifiedGen = (TTree*) infModified->Get("ntGen");
@@ -23,6 +23,8 @@ TH1D *hmassModified = new TH1D("hmassModified","",100,5.,6.);
 TH1D *hsizeGenOriginal = new TH1D("hsizeGenOriginal","",100,0.,500.);
 TH1D *hsizeGenModified = new TH1D("hsizeGenModified","",100,0.,500.);
 
+TH1D *hsizeGenOriginal = new TH1D("hsizeGenOriginal","",100,0.,500.);
+TH1D *hsizeGenModified = new TH1D("hsizeGenModified","",100,0.,500.);
 
 ntOriginal->Project("hgenOriginal","gen","");   
 ntModified->Project("hgenModified","gen","");   
@@ -31,8 +33,8 @@ ntModified->Project("hchi2bestModified","isbestchi2","");
 ntOriginal->Project("hmassOriginal","mass","");   
 ntModified->Project("hmassModified","mass","");   
 
-ntOriginalGen->Project("hsizeGenOriginal","size","");   
-ntModifiedGen->Project("hsizeGenModified","size","");   
+ntOriginalGen->Project("hsizeGenOriginal","isSignal","");   
+ntModifiedGen->Project("hsizeGenModified","isSignal","");   
 
 
 TCanvas*canvas=new TCanvas("canvas","canvas",800,500);

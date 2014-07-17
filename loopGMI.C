@@ -39,8 +39,6 @@ Float_t cosdthetaCutBzero=7.50e-01;
 Float_t invmasstktkBzero=2.33e-01;
 
 
-
-
 void fillTree(TVector3* bP, TVector3* bVtx, TLorentzVector* b4P, int j, int typesize, float track_mass1, float track_mass2, int REAL, int PbpMC)
 { 
   void TrackDirectGenLabel(int,int,int,int,int,int,int&,int&,int&);
@@ -512,32 +510,22 @@ int signalGen(int Btype, int j)
     }
 
   int flag=0;
-  if (abs(GenInfo_pdgId[j])==BId&&GenInfo_nDa[j]==2&&GenInfo_da1[j]!=-1&&GenInfo_da2[j]!=-1)
-    {
-      if (abs(GenInfo_pdgId[GenInfo_da1[j]]==443))//jpsi
-	{
-	  if(GenInfo_da1[GenInfo_da1[j]]!=-1&&GenInfo_da2[GenInfo_da1[j]]!=-1)
-	    {
-	      if(abs(GenInfo_pdgId[GenInfo_da1[GenInfo_da1[j]]])==13&&abs(GenInfo_pdgId[GenInfo_da2[GenInfo_da1[j]]])==13)
-		{
-		  if(!twoTks)
-		    {
-		      if(abs(GenInfo_pdgId[GenInfo_da2[j]])==tk1Id) flag++;
-		    }
-		  else
-		    {
-		      if (abs(GenInfo_pdgId[GenInfo_da2[j]])==MId) 
-			{
-			  if(GenInfo_da1[GenInfo_da2[j]]!=-1 && GenInfo_da2[GenInfo_da2[j]]!=-1)
-			    {
-			      if(GenInfo_pdgId[GenInfo_da1[GenInfo_da2[j]]]==tk1Id && GenInfo_pdgId[GenInfo_da2[GenInfo_da2[j]]]==tk2Id) flag++;
-			    }
+  if (abs(GenInfo_pdgId[j])==BId&&GenInfo_nDa[j]==2&&GenInfo_da1[j]!=-1&&GenInfo_da2[j]!=-1){
+    if (abs(GenInfo_pdgId[GenInfo_da1[j]]==443)){//jpsi
+	  if(GenInfo_da1[GenInfo_da1[j]]!=-1&&GenInfo_da2[GenInfo_da1[j]]!=-1){
+	    if(abs(GenInfo_pdgId[GenInfo_da1[GenInfo_da1[j]]])==13&&abs(GenInfo_pdgId[GenInfo_da2[GenInfo_da1[j]]])==13){
+		  if(!twoTks){if(abs(GenInfo_pdgId[GenInfo_da2[j]])==tk1Id) flag++;}
+		  else{
+		    if (abs(GenInfo_pdgId[GenInfo_da2[j]])==MId){
+			  if(GenInfo_da1[GenInfo_da2[j]]!=-1 && GenInfo_da2[GenInfo_da2[j]]!=-1){
+			    if(GenInfo_pdgId[GenInfo_da1[GenInfo_da2[j]]]==tk1Id && GenInfo_pdgId[GenInfo_da2[GenInfo_da2[j]]]==tk2Id) flag++;
+			  }
 			}
-		    }
+		  }
 		}
-	    }
+	  }
 	}
-    }
+  }
   return flag;
 }
 

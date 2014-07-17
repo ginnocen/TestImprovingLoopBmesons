@@ -11,6 +11,7 @@
 int twoTks;
 float BId,MId,tk1Id,tk2Id;
 
+int ifchannel[7];
 
 void setPDGcode(int boption){
 

@@ -7,62 +7,59 @@
 #define MAX_BX 128
 #define N_TRIGGER_BOOKINGS 5842
 
+void setPDGcode(int boption,int& myBId,int& myMId,int& mytk1Id,int& mytk2Id,int& mytwoTks,bool myisk0star){
 
-int twoTks;
-float BId,MId,tk1Id,tk2Id;
-
-int ifchannel[7];
-
-void setPDGcode(int boption){
-
-  BId=-1; 
-  MId=-1; 
-  tk1Id =-1;
-  tk2Id =-1;
-  twoTks =-1;
+  myBId=-1; 
+  myMId=-1; 
+  mytk1Id =-1;
+  mytk2Id =-1;
+  mytwoTks =-1;
+  myisk0star=-1;
     
 
   if(boption==1){
-    BId = 521;//B+-
-    MId = -1;
-    tk1Id = 321;//K+-
-    tk2Id = -1;
-    twoTks = 0; 
+    myBId = 521;//B+-
+    myMId = -1;
+    mytk1Id = 321;//K+-
+    mytk2Id = -1;
+    mytwoTks = 0; 
   }
   if(boption==2){
-    BId = 521;//B+-
-    MId = -1;
-    tk1Id = 211;//pi+-
-    tk2Id = -1;
-    twoTks = 0;
+    myBId = 521;//B+-
+    myMId = -1;
+    mytk1Id = 211;//pi+-
+    mytk2Id = -1;
+    mytwoTks = 0;
   }
   if(boption==3){
-    BId = 511;//B0
-    MId = 310;//Ks
-    tk1Id = 211;//pi+
-    tk2Id = -211;//pi-
-    twoTks = 1;
+    myBId = 511;//B0
+    myMId = 310;//Ks
+    mytk1Id = 211;//pi+
+    mytk2Id = -211;//pi-
+    mytwoTks = 1;
   }
   if(boption==4){
-    BId = 511;//B0
-    MId = 313;//K*0
-    tk1Id = 321;//K+
-    tk2Id = -211;//pi-
-    twoTks = 1;
+    myBId = 511;//B0
+    myMId = 313;//K*0
+    mytk1Id = 321;//K+
+    mytk2Id = -211;//pi-
+    mytwoTks = 1;
+    myisk0star=1;
   }
   if(boption==5){
-    BId = 511;//B0
-    MId = 313;//K*0
-    tk1Id = -321;//pi+
-    tk2Id = 211;//K-
-    twoTks = 1;
+    myBId = 511;//B0
+    myMId = 313;//K*0
+    mytk1Id = -321;//pi+
+    mytk2Id = 211;//K-
+    mytwoTks = 1;
+    myisk0star=1;
   }
   if(boption==6){
-    BId = 531;//Bs
-    MId = 333;//phi
-    tk1Id = 321;//K+
-    tk2Id = -321;//K-
-    twoTks = 1;
+    myBId = 531;//Bs
+    myMId = 333;//phi
+    mytk1Id = 321;//K+
+    mytk2Id = -321;//K-
+    mytwoTks = 1;
   }
 }
 

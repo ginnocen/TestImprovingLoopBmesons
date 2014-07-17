@@ -549,7 +549,7 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root",
 	  
   Bool_t IsEventSelected_pPb5TeV(bool,bool,int,double);
   Bool_t IsBplusCandidateSelected(double,double,double,double,double);
-  Bool_t IsBzeroCandidateSelected(double,double,double,double,double,double);
+  Bool_t IsBzeroCandidateSelected(double,double,double,double,double,double,double);
     
   const char* infname;
   const char* outfname;
@@ -688,7 +688,7 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root",
 	
 	  if(BInfo_type[j]==4 || BInfo_type[j]==5){
 	    fillTree(bP,bVtx,b4P,j,type4size,KAON_MASS,PION_MASS,REAL,PbpMC);
-	    iscandselected=IsBzeroCandidateSelected(chi2cl[type4size],trk1Pt[type4size],mumumass[type4size],(d0[type4size]/d0Err[type4size]),cos(dtheta[type4size]),tktkmass[type4size]);
+	    iscandselected=IsBzeroCandidateSelected(chi2cl[type4size],trk1Pt[type4size],trk2Pt[type4size],mumumass[type4size],(d0[type4size]/d0Err[type4size]),cos(dtheta[type4size]),tktkmass[type4size]);
 	  	if(chi2cl[type4size]>best&&iscandselected &&HLT_PAMu3_v1){
 	  	  best = chi2cl[type4size];
 		  bestindex = type4size;
@@ -785,10 +785,10 @@ Bool_t IsBplusCandidateSelected(double mychi2cl,double mytrk1Pt,double mymumumas
   return flag;
 }
 
-Bool_t IsBzeroCandidateSelected(double mychi2cl,double mytrk1Pt,double mymumumass,double myd0d0err,double mycostheta,double invmasstktk){
+Bool_t IsBzeroCandidateSelected(double mychi2cl,double mytrk1Pt,double mytrk2Pt,double mymumumass,double myd0d0err,double mycostheta,double invmasstktk){
     
   bool flag=false;
-  if(mychi2cl>chi2clCutBzero&&mytrk1Pt>trkPtCutBzero&&myd0d0err>d0d0ErrCutBzero&&abs(mymumumass-3.096916)<mumumassCut&&mycostheta>cosdthetaCutBzero&&abs(invmasstktk-0.89594)<invmasstktkBzero) flag=true;
+  if(mychi2cl>chi2clCutBzero&&mytrk1Pt>trkPtCutBzero&&mytrk2Pt>trkPtCutBzero&&myd0d0err>d0d0ErrCutBzero&&abs(mymumumass-3.096916)<mumumassCut&&mycostheta>cosdthetaCutBzero&&abs(invmasstktk-0.89594)<invmasstktkBzero) flag=true;
   return flag;
 }
 

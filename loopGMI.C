@@ -303,14 +303,12 @@ void fillTree(TVector3* bP, TVector3* bVtx, TLorentzVector* b4P, int j, int type
     int ujGenIdxMu1=-1;
     int ujGenIdxMu2=-1;
     
-    setPDGcode(BInfo_type[j]);
-      
-    int twoTks,kStar,flagkstar=0;
-    if(BInfo_type[j]==1 || BInfo_type[j]==2) twoTks=0;
-    else twoTks=1;
-    if(BInfo_type[j]==4 || BInfo_type[j]==5) kStar=1;
-    else kStar=0;
-    //int nonprompt=0
+    int BId,MId,tk1Id,tk2Id,twoTks;
+    int flagkstar=0;
+    bool kStar=false;
+        
+    setPDGcode(BInfo_type[j],BId,MId,tk1Id,tk2Id,twoTks,kStar);
+
     int prompt=0;
     
     int leveltk1=0;
@@ -420,11 +418,11 @@ void fillTree(TVector3* bP, TVector3* bVtx, TLorentzVector* b4P, int j, int type
 
 int signalGen(int Btype, int j)
 {
-  float BId,MId,tk1Id,tk2Id;
-  int twoTks;
-  //tk1:positive, tk2:negtive
-  setPDGcode(Btype);
-  
+  int BId,MId,tk1Id,tk2Id,twoTks;
+  bool kStar=false;
+        
+  setPDGcode(Btype,BId,MId,tk1Id,tk2Id,twoTks,kStar); 
+   
   int flag=0;
   if (abs(GenInfo_pdgId[j])==BId&&GenInfo_nDa[j]==2&&GenInfo_da1[j]!=-1&&GenInfo_da2[j]!=-1){
     if (abs(GenInfo_pdgId[GenInfo_da1[j]]==443)){//jpsi
@@ -446,10 +444,17 @@ int signalGen(int Btype, int j)
 }
 
 
+void runloopGMI(){
 
 
-void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root", 
-             string outfile="Modified/testModified.root", bool REAL=0,bool PbpMC=0,int nEntries=0){
+ void loopGMI(string,string,bool,bool,int);
+ string sourcefile= "../Input/Bfinder_all_151_1_Y7s.root";
+ string outputfile= "Modified/testModified.root";
+ loopGMI(sourcefile,outputfile,0,0,0);
+}
+
+void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root", string
+	  outfile="Modified/testModified.root", bool REAL=0,bool PbpMC=0,int nEntries=0){
 	  
   Bool_t IsEventSelected_pPb5TeV(bool,bool,int,double);
   Bool_t IsBplusCandidateSelected(double,double,double,double,double);
@@ -481,7 +486,8 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root",
 
   setBranch(root);
   setHltBranch(hlt);
-    
+  
+  int ifchannel[7];  
   ifchannel[0] = 1; //jpsi+Kp
   ifchannel[1] = 0; //other channel to be added
   ifchannel[2] = 0; //other channel to be added

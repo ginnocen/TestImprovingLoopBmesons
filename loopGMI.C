@@ -482,10 +482,13 @@ void loopGMI(string infile="../Input/Bfinder_all_151_1_Y7s.root",
   setBranch(root);
   setHltBranch(hlt);
     
-  int ifchannel[7];
   ifchannel[0] = 1; //jpsi+Kp
+  ifchannel[1] = 0; //other channel to be added
+  ifchannel[2] = 0; //other channel to be added
   ifchannel[3] = 1; //jpsi+K*(K+,pi-)
   ifchannel[4] = 1; //jpsi+K*(K-,pi+)
+  ifchannel[5] = 0; //other channel to be added
+  ifchannel[6] = 0; //other channel to be added
 
   
   TTree* nt0 = new TTree("ntKp","");

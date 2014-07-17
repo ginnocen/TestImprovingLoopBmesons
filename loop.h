@@ -7,14 +7,13 @@
 #define MAX_BX 128
 #define N_TRIGGER_BOOKINGS 5842
 
-void setPDGcode(int boption,int& myBId,int& myMId,int& mytk1Id,int& mytk2Id,int& mytwoTks,bool myisk0star){
+void setPDGcode(int boption,int& myBId,int& myMId,int& mytk1Id,int& mytk2Id,int& mytwoTks){
 
   myBId=-1; 
   myMId=-1; 
   mytk1Id =-1;
   mytk2Id =-1;
   mytwoTks =-1;
-  myisk0star=-1;
     
 
   if(boption==1){
@@ -44,7 +43,6 @@ void setPDGcode(int boption,int& myBId,int& myMId,int& mytk1Id,int& mytk2Id,int&
     mytk1Id = 321;//K+
     mytk2Id = -211;//pi-
     mytwoTks = 1;
-    myisk0star=1;
   }
   if(boption==5){
     myBId = 511;//B0
@@ -52,7 +50,6 @@ void setPDGcode(int boption,int& myBId,int& myMId,int& mytk1Id,int& mytk2Id,int&
     mytk1Id = -321;//pi+
     mytk2Id = 211;//K-
     mytwoTks = 1;
-    myisk0star=1;
   }
   if(boption==6){
     myBId = 531;//Bs
@@ -63,6 +60,66 @@ void setPDGcode(int boption,int& myBId,int& myMId,int& mytk1Id,int& mytk2Id,int&
   }
 }
 
+
+void setPDGcodeGen(int boption,int& myBId,int& myMId,int& mytk1Id,int& mytk2Id,int& mytwoTks,bool &myisk0star){
+
+  myBId=-1; 
+  myMId=-1; 
+  mytk1Id =-1;
+  mytk2Id =-1;
+  mytwoTks =-1;
+  myisk0star=-1;
+    
+
+  if(boption==1){
+    myBId = 521;//B+-
+    myMId = -1;
+    mytk1Id = 321;//K+-
+    mytk2Id = -1;
+    mytwoTks = 0; 
+    myisk0star=0;
+  }
+  if(boption==2){
+    myBId = 521;//B+-
+    myMId = -1;
+    mytk1Id = 211;//pi+-
+    mytk2Id = -1;
+    mytwoTks = 0;
+    myisk0star=0;
+  }
+  if(boption==3){
+    myBId = 511;//B0
+    myMId = 310;//Ks
+    mytk1Id = 211;//pi+
+    mytk2Id = 211;//pi-
+    mytwoTks = 1;
+    myisk0star=0;
+  }
+  if(boption==4){
+    myBId = 511;//B0
+    myMId = 313;//K*0
+    mytk1Id = 321;//K+
+    mytk2Id = 211;//pi-
+    mytwoTks = 1;
+    myisk0star=1;
+  }
+  if(boption==5){
+    myBId = 511;//B0
+    myMId = 313;//K*0
+    mytk1Id = 321;//pi+
+    mytk2Id = 211;//K-
+    mytwoTks = 1;
+    myisk0star=1;
+  }
+  if(boption==6){
+    myBId = 531;//Bs
+    myMId = 333;//phi
+    mytk1Id = 321;//K+
+    mytk2Id = 321;//K-
+    mytwoTks = 1;
+    myisk0star=0;
+  }
+}
 
 Int_t   Run;
 Int_t   Event;

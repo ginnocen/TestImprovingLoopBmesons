@@ -302,45 +302,8 @@ void fillTree(TVector3* bP, TVector3* bVtx, TLorentzVector* b4P, int j, int type
     int bGenIdxMu2=-1;
     int ujGenIdxMu1=-1;
     int ujGenIdxMu2=-1;
-      
-    float BId,MId,tk1Id,tk2Id;
-    //tk1:positive, tk2:negtive
-    if(BInfo_type[j]==1){
-	  BId = 521;//B+-
-	  MId = -1;
-	  tk1Id = 321;//K+-
-	  tk2Id = -1;
-	}
-    if(BInfo_type[j]==2){
-	  BId = 521;//B+-
-	  MId = -1;
-	  tk1Id = 211;//pi+-
-	  tk2Id = -1;
-	}
-    if(BInfo_type[j]==3){
-	  BId = 511;//B0
-	  MId = 310;//Ks
-	  tk1Id = 211;//pi+
-	  tk2Id = 211;//pi-
-	}
-    if(BInfo_type[j]==4){
-	  BId = 511;//B0
-	  MId = 313;//K*0
-	  tk1Id = 321;//K+
-	  tk2Id = 211;//pi-
-	}
-    if(BInfo_type[j]==5){
-	  BId = 511;//B0
-	  MId = 313;//K*0
-	  tk1Id = 211;//pi+
-	  tk2Id = 321;//K-
-	}
-    if(BInfo_type[j]==6){
-	  BId = 531;//Bs
-	  MId = 333;//phi
-	  tk1Id = 321;//K+
-	  tk2Id = 321;//K-
-	}
+    
+    setPDGcode(BInfo_type[j]);
       
     int twoTks,kStar,flagkstar=0;
     if(BInfo_type[j]==1 || BInfo_type[j]==2) twoTks=0;
@@ -460,55 +423,8 @@ int signalGen(int Btype, int j)
   float BId,MId,tk1Id,tk2Id;
   int twoTks;
   //tk1:positive, tk2:negtive
-  if(Btype==1)
-    {
-      BId = 521;//B+-
-      MId = -1;
-      tk1Id = 321;//K+-
-      tk2Id = -1;
-      twoTks = 0;
-    }
-  if(Btype==2)
-    {
-      BId = 521;//B+-
-      MId = -1;
-      tk1Id = 211;//pi+-
-      tk2Id = -1;
-      twoTks = 0;
-    }
-  if(Btype==3)
-    {
-      BId = 511;//B0
-      MId = 310;//Ks
-      tk1Id = 211;//pi+
-      tk2Id = -211;//pi-
-      twoTks = 1;
-    }
-  if(Btype==4)
-    {
-      BId = 511;//B0
-      MId = 313;//K*0
-      tk1Id = 321;//K+
-      tk2Id = -211;//pi-
-      twoTks = 1;
-    }
-  if(Btype==5)
-    {
-      BId = 511;//B0
-      MId = 313;//K*0
-      tk1Id = -321;//pi+
-      tk2Id = 211;//K-
-      twoTks = 1;
-    }
-  if(Btype==6)
-    {
-      BId = 531;//Bs
-      MId = 333;//phi
-      tk1Id = 321;//K+
-      tk2Id = -321;//K-
-      twoTks = 1;
-    }
-
+  setPDGcode(Btype);
+  
   int flag=0;
   if (abs(GenInfo_pdgId[j])==BId&&GenInfo_nDa[j]==2&&GenInfo_da1[j]!=-1&&GenInfo_da2[j]!=-1){
     if (abs(GenInfo_pdgId[GenInfo_da1[j]]==443)){//jpsi

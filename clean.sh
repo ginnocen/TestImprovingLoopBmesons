@@ -4,3 +4,4 @@ rm *.so
 rm *.d
 rm Display/*.pdf
 rm Display/*.root
+rm *.pdf
